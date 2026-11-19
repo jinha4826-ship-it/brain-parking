@@ -447,7 +447,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;hei
     if (!s.cls) s.cls = { now: 0, park: 0, worry: 0 };
     if (!s.days) s.days = {};
     ['dumped','released','done','sorted'].forEach(function (k) { if (typeof s[k] !== 'number') s[k] = 0; });
-    state.items = state.items.filter(function (i) { return i && typeof i.text === 'string'; });
+    state.items = state.items.filter(function (i) { return i && typeof i.text === 'string' && !i.done; });
     state.items.forEach(function (i) {
       if (['inbox','now','park','worry'].indexOf(i.zone) < 0) i.zone = 'inbox';
     });
