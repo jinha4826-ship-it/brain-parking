@@ -1206,19 +1206,25 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
       (name ? '“' + name + '”' : '파일') + '에서 생각 ' + items.length + '개, 기록 ' + stats.dumped + '건을 찾았어요. 어떻게 넣을까요?'));
     frag.appendChild(actions([
       btn('기존 기록에 합치기', 'btn-mint', function () {
-        var ids = {};
-        state.items.forEach(function (i) { ids[i.id] = 1; });
+        var ids = {}, texts = {};
+        state.items.forEach(function (i) { ids[i.id] = 1; texts[i.text.trim()] = 1; });
+        var added = 0, skipped = 0;
         items.forEach(function (i) {
+          if (texts[i.text.trim()]) { skipped += 1; return; }
+          texts[i.text.trim()] = 1;
           if (ids[i.id]) i.id = newId();
           ids[i.id] = 1;
           state.items.push(i);
+          added += 1;
         });
         mergeStats(state.stats, stats);
         enforceNowLimit();
         save();
         renderAll();
         closeSheet();
-        toast('생각 ' + items.length + '개를 합쳤어요 🅿️');
+        toast(skipped
+          ? ('생각 ' + added + '개를 합쳤어요 · 이미 있던 ' + skipped + '개는 건너뛰었어요')
+          : ('생각 ' + added + '개를 합쳤어요 🅿️'));
       }),
       btn('전부 교체하기', 'btn-soft', function () {
         state.items = items;
@@ -1231,7 +1237,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
       }),
       btn('그만두기', 'btn-soft', closeSheet)
     ]));
-    frag.appendChild(el('p', 'sheet-note', '교체하면 지금 기기에 있던 생각과 기록은 사라져요.'));
+    frag.appendChild(el('p', 'sheet-note', '이미 있는 생각은 건너뛰어요. 교체하면 지금 기기에 있던 생각과 기록은 사라져요.'));
     openSheet('백업 불러오기', frag);
   }
   function readBackup(file) {
