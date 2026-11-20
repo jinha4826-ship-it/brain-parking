@@ -496,22 +496,6 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
       </div>
 
       <section class="card">
-        <h3>내가 막히는 유형</h3>
-        <p class="sub">정리해본 생각들이 어디로 갔는지로 계산해요.</p>
-        <div class="type-row">
-          <span class="tlabel">할 일 과부하</span>
-          <span class="tbar"><i id="typeBarTodo" style="background:linear-gradient(90deg,#f3c469,#eeb04e)"></i></span>
-          <span class="tpct" id="typePctTodo">0%</span>
-        </div>
-        <div class="type-row">
-          <span class="tlabel">걱정 과부하</span>
-          <span class="tbar"><i id="typeBarWorry" style="background:linear-gradient(90deg,#6fd3b5,#3fbe9c)"></i></span>
-          <span class="tpct" id="typePctWorry">0%</span>
-        </div>
-        <div class="type-insight" id="typeInsight">아직 정리한 기록이 없어요. 생각을 몇 개 던지고 정리해보면 내 패턴이 보여요.</div>
-      </section>
-
-      <section class="card">
         <h3>최근 7일 비운 기록 <span>던진 생각 기준</span></h3>
         <div class="bars" id="dayBars"></div>
       </section>
@@ -940,24 +924,6 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     var worry = s.cls.worry;
     var total = todo + worry;
     $('stSorted').innerHTML = Math.max(s.sorted, total) + '<small>회</small>';
-    var pTodo = total ? Math.round(todo / total * 100) : 0;
-    var pWorry = total ? 100 - pTodo : 0;
-    $('typeBarTodo').style.width = pTodo + '%';
-    $('typeBarWorry').style.width = pWorry + '%';
-    $('typePctTodo').textContent = total ? pTodo + '%' : '—';
-    $('typePctWorry').textContent = total ? pWorry + '%' : '—';
-
-    var insight;
-    if (!total) {
-      insight = '아직 정리한 기록이 없어요. 생각을 몇 개 던지고 정리해보면 내 패턴이 보여요.';
-    } else if (pWorry >= 60) {
-      insight = '지금은 <b>걱정 과부하</b> 쪽이에요. 할 일이 아니라 통제 밖의 걱정이 머리를 채우고 있어요. 정리한 뒤 🍃 내려놓기를 자주 눌러보세요.';
-    } else if (pTodo >= 60) {
-      insight = '지금은 <b>할 일 과부하</b> 쪽이에요. 해야 할 게 많아서 멈춘 상태예요. 🔥 지금 딱 1개만 골라 5분만 시작해보세요.';
-    } else {
-      insight = '할 일과 걱정이 <b>반반</b>이에요. 지금 딱 1개만 정하고, 나머지는 주차장에 맡겨두면 돼요.';
-    }
-    $('typeInsight').innerHTML = insight;
 
     var bars = $('dayBars');
     bars.innerHTML = '';
