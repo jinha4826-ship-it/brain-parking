@@ -91,6 +91,8 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
 }
 .view.active{opacity:1;visibility:visible;transform:none}
 .view:focus{outline:none}
+.view::-webkit-scrollbar,.sheet-body::-webkit-scrollbar{display:none;width:0;height:0}
+.view,.sheet-body{scrollbar-width:none;-ms-overflow-style:none}
 
 /* ══ 아이콘 탭바 ══ */
 .tabbar{
@@ -401,7 +403,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     <div class="appbar-right">
       <span class="date-pill" id="datePill"></span>
       <button class="icon-btn" id="safetyBtn" type="button" aria-label="위기 안전 안내 열기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.4-7.5-9.4A4.1 4.1 0 0 1 12 8.2a4.1 4.1 0 0 1 7.5 2.9c0 5-7.5 9.4-7.5 9.4z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 4.6h3.1l1.5 3.8-2 1.4a10.6 10.6 0 0 0 5.1 5.1l1.4-2 3.8 1.5v3.1a2 2 0 0 1-2.2 2A16.4 16.4 0 0 1 3.2 6.8a2 2 0 0 1 2-2.2z"/></svg>
       </button>
     </div>
   </header>
@@ -645,11 +647,19 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
       if (!i.id) i.id = newId();
     });
     if (VIEWS.indexOf(state.tab) < 0) state.tab = 'dump';
+    enforceNowLimit();
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   }
   function newId() { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function enforceNowLimit() {
+    var nows = nowList();
+    if (nows.length <= MAX_NOW) return;
+    nows.slice().sort(function (a, b) { return a.createdAt - b.createdAt; })
+      .slice(MAX_NOW)
+      .forEach(function (i) { i.zone = 'park'; });
+  }
   function dayBucket(k) {
     var d = state.stats.days[k];
     if (!d) { d = { d: 0, r: 0, c: 0 }; state.stats.days[k] = d; }
@@ -1204,6 +1214,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
           state.items.push(i);
         });
         mergeStats(state.stats, stats);
+        enforceNowLimit();
         save();
         renderAll();
         closeSheet();
@@ -1212,6 +1223,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
       btn('전부 교체하기', 'btn-soft', function () {
         state.items = items;
         state.stats = stats;
+        enforceNowLimit();
         save();
         renderAll();
         closeSheet();
