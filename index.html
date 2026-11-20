@@ -562,7 +562,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     <button class="tab on" id="tabDump" type="button" role="tab" aria-selected="true" aria-controls="viewDump">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5.2"/><path d="M9.6 16.6V7.7h3.5a3.05 3.05 0 0 1 0 6.1H9.6"/></svg>
       <span>주차하기</span>
-      <span class="tab-badge hidden" id="tabBadgeDump">0</span>
+      <span class="tab-badge hidden" id="tabBadgeDump" aria-hidden="true">0</span>
     </button>
     <button class="tab" id="tabZones" type="button" role="tab" aria-selected="false" aria-controls="viewZones">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="3.6" width="7" height="7" rx="2.2"/><rect x="13.4" y="3.6" width="7" height="7" rx="2.2"/><rect x="3.6" y="13.4" width="7" height="7" rx="2.2"/><rect x="13.4" y="13.4" width="7" height="7" rx="2.2"/></svg>
@@ -764,6 +764,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     var badge = $('tabBadgeDump');
     badge.textContent = String(waiting);
     badge.classList.toggle('hidden', waiting === 0);
+    $('tabDump').setAttribute('aria-label', waiting > 0 ? ('주차하기, 정리 전 ' + waiting + '개') : '주차하기');
   }
 
   /* ── 카드 ── */
