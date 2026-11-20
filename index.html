@@ -492,7 +492,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
         <div class="stat s-mint"><div class="n" id="stReleased">0<small>개</small></div><div class="k">🍃 흘려보낸 걱정</div></div>
         <div class="stat s-lav"><div class="n" id="stDone">0<small>개</small></div><div class="k">✅ 완료한 일</div></div>
         <div class="stat s-amber"><div class="n" id="stDumped">0<small>개</small></div><div class="k">🫧 던져낸 생각 전체</div></div>
-        <div class="stat s-ink"><div class="n" id="stSorted">0<small>회</small></div><div class="k">🅿️ 머릿속 정리 횟수</div></div>
+        <div class="stat s-ink"><div class="n" id="stSorted">0<small>회</small></div><div class="k">🅿️ 정리·분류 횟수</div></div>
       </div>
 
       <section class="card">
@@ -800,10 +800,13 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     }
 
     var brow = el('div', 'row');
-    [['now', '🔥 지금'], ['park', '🅿️ 주차'], ['worry', '🍃 흘려']].forEach(function (z) {
+    [['now', '🔥 지금'], ['park', '🅿️ 주차'], ['worry', '🍃 흘려보내기']].forEach(function (z) {
       if (opts.hideCurrent && z[0] === item.zone) return;
       var b = moveBtn(z[1], z[0], item.zone === z[0]);
-      b.addEventListener('click', function () { move(item.id, z[0]); });
+      b.addEventListener('click', function () {
+        if (z[0] === 'worry' && opts.directRelease) { release(item.id, card); return; }
+        move(item.id, z[0]);
+      });
       brow.appendChild(b);
     });
 
@@ -849,7 +852,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     card.setAttribute('data-id', item.id);
     card.appendChild(el('div', 'txt', item.text));
 
-    var rel = el('button', 'release-btn', '🍃 내려놓기');
+    var rel = el('button', 'release-btn', '🍃 흘려보내기');
     rel.type = 'button';
     rel.addEventListener('click', function () { release(item.id, card); });
     card.appendChild(rel);
@@ -875,7 +878,7 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     var list = $('inboxList');
     var items = byZone('inbox');
     list.innerHTML = '';
-    items.forEach(function (i) { list.appendChild(makeThought(i, { hideCurrent: true })); });
+    items.forEach(function (i) { list.appendChild(makeThought(i, { hideCurrent: true, directRelease: true })); });
     $('inboxCount').textContent = String(items.length);
 
     var zoned = state.items.length - items.length;
@@ -933,11 +936,10 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     $('stReleased').innerHTML = s.released + '<small>개</small>';
     $('stDone').innerHTML = s.done + '<small>개</small>';
     $('stDumped').innerHTML = s.dumped + '<small>개</small>';
-    $('stSorted').innerHTML = s.sorted + '<small>회</small>';
-
     var todo = s.cls.now + s.cls.park;
     var worry = s.cls.worry;
     var total = todo + worry;
+    $('stSorted').innerHTML = Math.max(s.sorted, total) + '<small>회</small>';
     var pTodo = total ? Math.round(todo / total * 100) : 0;
     var pWorry = total ? 100 - pTodo : 0;
     $('typeBarTodo').style.width = pTodo + '%';
@@ -1301,7 +1303,10 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
     }
     var from = item.zone;
     item.zone = zone;
-    if (from === 'inbox' && zone !== 'inbox') state.stats.cls[zone] += 1;
+    if (from === 'inbox' && zone !== 'inbox') {
+      state.stats.cls[zone] += 1;
+      state.stats.sorted += 1;
+    }
     save();
     renderAll();
     if (zone === 'now') toast('좋아요. 지금은 이거 하나만 🔥');
@@ -1312,6 +1317,10 @@ a{-webkit-tap-highlight-color:transparent;text-decoration:none;color:inherit}
   function release(id, card) {
     var item = findItem(id);
     if (!item) return;
+    if (item.zone === 'inbox') {
+      state.stats.cls.worry += 1;
+      state.stats.sorted += 1;
+    }
     var target = card || document.querySelector('.thought[data-id="' + id + '"]');
     if (target) target.classList.add('releasing');
     state.items = state.items.filter(function (i) { return i.id !== id; });
